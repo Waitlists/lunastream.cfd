@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/icon.jpg", type: "image/png", sizes: "32x32" }],
   },
+  openGraph: {
+    title: "LunaStream - Watch Movies & TV Shows",
+    description: "Stream your favorite movies and TV shows on LunaStream",
+    images: [{ url: "/image.png" }],
+  },
 }
 
 export default function RootLayout({
