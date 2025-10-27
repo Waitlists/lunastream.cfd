@@ -155,7 +155,7 @@ export function Navbar() {
             </button>
 
             <a
-              href="https://discord.gg/lunastream"
+              href="https://discord.gg/3kpj8SuMy5"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/50 hover:text-[#fbc9ff] transition-all p-2 rounded-lg hover:bg-white/5 hover:scale-110 hover:shadow-[0_0_15px_rgba(251,201,255,0.3)]"
