@@ -12,7 +12,7 @@ interface TrailerBackgroundProps {
 
 export function TrailerBackground({ trailerKey, title }: TrailerBackgroundProps) {
   const [settings, setSettings] = useState(storage.getSettings())
-  const [isMuted, setIsMuted] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
 
   useEffect(() => {
     const handleSettingsChange = (e: CustomEvent) => {
@@ -23,14 +23,14 @@ export function TrailerBackground({ trailerKey, title }: TrailerBackgroundProps)
     return () => window.removeEventListener("settingsChanged" as any, handleSettingsChange)
   }, [])
 
-  if (!trailerKey || !settings.playTrailers || !settings.autoplayTrailers) {
+  if (!trailerKey || !settings.playTrailers) {
     return null
   }
 
   return (
     <div className="absolute inset-0 overflow-hidden">
       <iframe
-        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&showinfo=0&rel=0&loop=1&playlist=${trailerKey}&enablejsapi=1`}
+        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&showinfo=0&rel=0&loop=1&playlist=${trailerKey}&enablejsapi=1&modestbranding=1&iv_load_policy=3`}
         title={`${title} Trailer`}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-h-full min-w-full"
         allow="autoplay; encrypted-media"
@@ -44,6 +44,7 @@ export function TrailerBackground({ trailerKey, title }: TrailerBackgroundProps)
         size="icon"
         className="absolute top-6 right-6 bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm border border-white/20 transition-all hover:scale-110"
         onClick={() => setIsMuted(!isMuted)}
+        title={isMuted ? "Unmute trailer" : "Mute trailer"}
       >
         {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 text-[#fbc9ff]" />}
       </Button>
