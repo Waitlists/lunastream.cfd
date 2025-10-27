@@ -10,7 +10,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "LunaStream - Watch Movies & TV Shows",
   description: "Stream your favorite movies and TV shows on LunaStream",
-  generator: "v0.app",
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/icon.jpg", type: "image/png", sizes: "32x32" }],
   },

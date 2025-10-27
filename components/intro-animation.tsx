@@ -11,21 +11,33 @@ interface IntroAnimationProps {
 
 export function IntroAnimation({ onComplete, onSkip }: IntroAnimationProps) {
   const [progress, setProgress] = useState(0)
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const newTimer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(timer)
+          clearInterval(newTimer)
           setTimeout(onComplete, 500)
           return 100
         }
-        return prev + 0.8
+        return prev + 1.6
       })
     }, 30)
 
-    return () => clearInterval(timer)
+    setTimer(newTimer)
+
+    return () => clearInterval(newTimer)
   }, [onComplete])
+
+  const handleSkip = () => {
+    if (timer) {
+      clearInterval(timer)
+      setTimer(null)
+    }
+    setProgress(100)
+    onComplete()
+  }
 
   return (
     <motion.div
@@ -38,7 +50,7 @@ export function IntroAnimation({ onComplete, onSkip }: IntroAnimationProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
-        onClick={onSkip}
+        onClick={handleSkip}
         className="absolute bottom-8 right-8 flex items-center gap-2 text-white bg-[#fbc9ff]/20 hover:bg-[#fbc9ff]/30 border-2 border-[#fbc9ff] hover:border-[#fbc9ff] transition-all text-base font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-[0_0_20px_rgba(251,201,255,0.5)] hover:scale-105"
       >
         <SkipForward className="w-5 h-5" />
