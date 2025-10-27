@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "LunaStream - Watch Movies & TV Shows",
   description: "Stream your favorite movies and TV shows on LunaStream",
   icons: {
-    icon: [{ url: "/favicon.ico" }, { url: "/icon.jpg", type: "image/png", sizes: "32x32" }],
+    icon: "/favicon.ico",
   },
   openGraph: {
     title: "LunaStream - Watch Movies & TV Shows",
