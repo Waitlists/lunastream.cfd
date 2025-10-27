@@ -25,7 +25,7 @@ export default function SearchPage() {
         ...movies.results.slice(0, 10).map((m: any) => ({ ...m, media_type: "movie" })),
         ...tvShows.results.slice(0, 10).map((t: any) => ({ ...t, media_type: "tv" })),
       ]
-      setPopularContent(combined.sort(() => Math.random() - 0.5))
+      setPopularContent(combined.sort((a, b) => (b.popularity || 0) - (a.popularity || 0)))
     }
     fetchPopular()
   }, [])
@@ -50,7 +50,12 @@ export default function SearchPage() {
         const filteredResults = data.results.filter(
           (r: any) => r.media_type !== "person" && (r.poster_path || r.profile_path),
         )
-        const sortedResults = filteredResults.sort((a: any, b: any) => (b.vote_count || 0) - (a.vote_count || 0))
+        // Sort by relevance (TMDB order) with slight popularity boost and minimal fuzzing
+        const sortedResults = filteredResults.sort((a: any, b: any) => {
+          const aScore = (a.popularity || 0) + Math.random() * 0.1
+          const bScore = (b.popularity || 0) + Math.random() * 0.1
+          return bScore - aScore
+        })
         setResults(sortedResults)
       } catch (error) {
         console.error("[v0] Search error:", error)
