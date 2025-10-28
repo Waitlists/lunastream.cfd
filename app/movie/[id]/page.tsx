@@ -16,7 +16,9 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
     notFound()
   }
 
-  const movie = await tmdb.getMovieDetails(movieId)
+  const [movie] = await Promise.all([
+    tmdb.getMovieDetails(movieId),
+  ])
 
   const trailer = movie.videos.results.find((v) => v.type === "Trailer" && v.site === "YouTube")
 

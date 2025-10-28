@@ -37,12 +37,16 @@ type PlayerType =
   | "111movies"
   | "vixsrc"
   | "vidsrc.cx"
+  | "xprime"
+  | "bludclart"
+  | "vidup"
 
 export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onClose }: PlayerSelectorProps) {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerType>("videasy")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const players = [
+    { id: "xprime" as PlayerType, name: "XPrime" },
     { id: "videasy" as PlayerType, name: "Videasy" },
     { id: "vidify" as PlayerType, name: "Vidify" },
     { id: "vidplus" as PlayerType, name: "VidPlus" },
@@ -66,6 +70,8 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
     { id: "111movies" as PlayerType, name: "111Movies" },
     { id: "vixsrc" as PlayerType, name: "VixSrc" },
     { id: "vidsrc.cx" as PlayerType, name: "Vidsrc.cx" },
+    { id: "bludclart" as PlayerType, name: "BludClart" },
+    { id: "vidup" as PlayerType, name: "VidUp" },
   ]
 
   useEffect(() => {
@@ -146,6 +152,12 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
           return `https://vixsrc.to/movie/${tmdbId}?primaryColor=B20710&secondaryColor=170000&autoplay=false&startAt=0&lang=en`
         case "vidsrc.cx":
           return `https://vidsrc.cx/embed/movie/${tmdbId}`
+        case "xprime":
+          return `https://xprime.tv/watch/${tmdbId}`
+        case "bludclart":
+          return `https://watch.bludclart.com/movie/${tmdbId}/watch`
+        case "vidup":
+          return `https://vidup.to/movie/${tmdbId}?autoPlay=true`
         default:
           return `https://player.videasy.net/movie/${tmdbId}?color=${color}&chromecast=false`
       }
@@ -197,6 +209,12 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
           return `https://vixsrc.to/tv/${tmdbId}/${season}/${episode}?primaryColor=B20710&secondaryColor=170000&autoplay=false&startAt=0&lang=en`
         case "vidsrc.cx":
           return `https://vidsrc.cx/embed/tv/${tmdbId}/${season}/${episode}`
+        case "xprime":
+          return `https://xprime.tv/watch/${tmdbId}/${season}/${episode}`
+        case "bludclart":
+          return `https://watch.bludclart.com/tv/${tmdbId}/${season}/${episode}`
+        case "vidup":
+          return `https://vidup.to/tv/${tmdbId}/${season}/${episode}?autoPlay=true`
         default:
           return `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}?color=${color}&chromecast=false`
       }
@@ -239,7 +257,7 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
 
         <button
           onClick={onClose}
-          className="text-white hover:text-gray-300 transition-all active:scale-95 p-2"
+          className="text-white hover:text-gray-300 transition-all active:scale-95 p-2 hover:bg-white/10 rounded-lg"
           aria-label="Close Player"
         >
           <X className="w-8 h-8" />

@@ -18,6 +18,7 @@ export async function GET() {
       .select("*")
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false })
+      .limit(50) // Limit to prevent performance issues
 
     if (error) throw error
 

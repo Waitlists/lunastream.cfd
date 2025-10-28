@@ -64,7 +64,19 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
       const response = await fetch("/api/continue-watching")
       if (response.ok) {
         const data: DBWatchProgress[] = await response.json()
-        const formatted: WatchProgress[] = data.map((item) => ({
+
+        // Group by media_id and media_type, keeping only the most recent entry for each show/movie
+        const grouped = data.reduce((acc, item) => {
+          const key = `${item.media_type}-${item.media_id}`
+          if (!acc[key] || new Date(item.updated_at) > new Date(acc[key].updated_at)) {
+            acc[key] = item
+          }
+          return acc
+        }, {} as Record<string, DBWatchProgress>)
+
+        const uniqueData = Object.values(grouped)
+
+        const formatted: WatchProgress[] = uniqueData.map((item) => ({
           id: Number.parseInt(item.media_id),
           mediaType: item.media_type as "movie" | "tv",
           title: item.title,
@@ -85,7 +97,36 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
   const loadFromLocalStorage = () => {
     const allProgress = storage.getWatchProgress()
     const validProgress = allProgress.filter((item) => !Number.isNaN(item.id) && item.id > 0)
-    setWatchList(validProgress)
+
+    // For TV shows, keep only the most recent episode per show
+    const uniqueProgress = validProgress.reduce((acc, item) => {
+      const key = `${item.mediaType}-${item.id}`
+      const existing = acc.find((existingItem) => `${existingItem.mediaType}-${existingItem.id}` === key)
+
+      if (!existing) {
+        acc.push(item)
+      } else if (item.mediaType === "tv" && existing.mediaType === "tv") {
+        // For TV shows, compare season and episode to keep the most recent
+        const existingSeason = existing.season || 0
+        const existingEpisode = existing.episode || 0
+        const itemSeason = item.season || 0
+        const itemEpisode = item.episode || 0
+
+        if (itemSeason > existingSeason || (itemSeason === existingSeason && itemEpisode > existingEpisode)) {
+          // Replace with more recent episode
+          const index = acc.indexOf(existing)
+          acc[index] = item
+        }
+      } else if (item.lastWatched > existing.lastWatched) {
+        // For movies or same type, keep the most recently watched
+        const index = acc.indexOf(existing)
+        acc[index] = item
+      }
+
+      return acc
+    }, [] as WatchProgress[])
+
+    setWatchList(uniqueProgress)
   }
 
   useEffect(() => {
@@ -130,6 +171,9 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
       router.push(`/watch/movie/${item.id}`)
     } else if (item.season && item.episode) {
       router.push(`/watch/tv/${item.id}/${item.season}/${item.episode}`)
+    } else {
+      // For TV shows without specific episode data, start from season 1 episode 1
+      router.push(`/watch/tv/${item.id}/1/1`)
     }
   }
 

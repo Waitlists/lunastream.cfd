@@ -34,7 +34,9 @@ export default function TVShowPage() {
           return
         }
 
-        const showData = await tmdb.getTVShowDetails(tvId)
+        const [showData] = await Promise.all([
+          tmdb.getTVShowDetails(tvId),
+        ])
         setShow(showData)
         setCurrentSeason(1)
         setLoading(false)
@@ -145,12 +147,6 @@ export default function TVShowPage() {
                       <Star className="w-4 h-4 fill-[#fbc9ff] text-[#fbc9ff]" />
                       <span className="text-[#fbc9ff] font-semibold">{show.vote_average.toFixed(1)}</span>
                     </div>
-                    {show.status && (
-                      <>
-                        <span>•</span>
-                        <span className="text-[#fbc9ff]">{show.status}</span>
-                      </>
-                    )}
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -171,6 +167,11 @@ export default function TVShowPage() {
                       <Button size="lg" className="bg-[#fbc9ff] hover:bg-[#db97e2] text-black font-semibold">
                         <Play className="w-5 h-5 mr-2 fill-black" />
                         Play Now
+                      </Button>
+                    </Link>
+                    <Link href={`/continue`}>
+                      <Button size="lg" variant="outline" className="border-[#fbc9ff] text-[#fbc9ff] hover:bg-[#fbc9ff] hover:text-black font-semibold">
+                        Continue Watching
                       </Button>
                     </Link>
                   </div>
