@@ -50,17 +50,8 @@ export default function SearchPage() {
         const filteredResults = data.results.filter(
           (r: any) => r.media_type !== "person" && (r.poster_path || r.profile_path),
         )
-        // Sort by relevance based on title/name match, then by popularity
-        const sortedResults = filteredResults.sort((a: any, b: any) => {
-          const queryLower = query.toLowerCase()
-          const aTitle = (a.title || a.name || '').toLowerCase()
-          const bTitle = (b.title || b.name || '').toLowerCase()
-          const aRelevance = aTitle === queryLower ? 100 : aTitle.startsWith(queryLower) ? 50 : aTitle.includes(queryLower) ? 10 : 0
-          const bRelevance = bTitle === queryLower ? 100 : bTitle.startsWith(queryLower) ? 50 : bTitle.includes(queryLower) ? 10 : 0
-          if (aRelevance !== bRelevance) return bRelevance - aRelevance
-          return (b.popularity || 0) - (a.popularity || 0)
-        })
-        setResults(sortedResults)
+        // Use TMDB's default relevance order
+        setResults(filteredResults)
       } catch (error) {
         console.error("[v0] Search error:", error)
       } finally {
