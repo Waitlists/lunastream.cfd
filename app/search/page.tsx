@@ -50,11 +50,15 @@ export default function SearchPage() {
         const filteredResults = data.results.filter(
           (r: any) => r.media_type !== "person" && (r.poster_path || r.profile_path),
         )
-        // Sort by relevance (TMDB order) with slight popularity boost and minimal fuzzing
+        // Sort by relevance based on title/name match, then by popularity
         const sortedResults = filteredResults.sort((a: any, b: any) => {
-          const aScore = (a.popularity || 0) + Math.random() * 0.1
-          const bScore = (b.popularity || 0) + Math.random() * 0.1
-          return bScore - aScore
+          const queryLower = query.toLowerCase()
+          const aTitle = (a.title || a.name || '').toLowerCase()
+          const bTitle = (b.title || b.name || '').toLowerCase()
+          const aRelevance = aTitle === queryLower ? 100 : aTitle.startsWith(queryLower) ? 50 : aTitle.includes(queryLower) ? 10 : 0
+          const bRelevance = bTitle === queryLower ? 100 : bTitle.startsWith(queryLower) ? 50 : bTitle.includes(queryLower) ? 10 : 0
+          if (aRelevance !== bRelevance) return bRelevance - aRelevance
+          return (b.popularity || 0) - (a.popularity || 0)
         })
         setResults(sortedResults)
       } catch (error) {
