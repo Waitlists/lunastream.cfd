@@ -46,7 +46,6 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const players = [
-    { id: "xprime" as PlayerType, name: "XPrime" },
     { id: "videasy" as PlayerType, name: "Videasy" },
     { id: "vidify" as PlayerType, name: "Vidify" },
     { id: "vidplus" as PlayerType, name: "VidPlus" },
@@ -70,6 +69,7 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
     { id: "111movies" as PlayerType, name: "111Movies" },
     { id: "vixsrc" as PlayerType, name: "VixSrc" },
     { id: "vidsrc.cx" as PlayerType, name: "Vidsrc.cx" },
+       { id: "xprime" as PlayerType, name: "XPrime" },
     { id: "bludclart" as PlayerType, name: "BludClart" },
     { id: "vidup" as PlayerType, name: "VidUp" },
   ]
