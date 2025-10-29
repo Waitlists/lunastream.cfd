@@ -3,21 +3,10 @@ import { MediaCard } from "@/components/media-card"
 import { tmdb } from "@/lib/tmdb"
 import Image from "next/image"
 import { Calendar, MapPin, Briefcase } from "lucide-react"
-import { notFound } from "next/navigation"
 
 export default async function PersonPage({ params }: { params: { id: string } }) {
   const personId = Number.parseInt(params.id)
-
-  let person
-  try {
-    person = await tmdb.getPersonDetails(personId)
-  } catch (error) {
-    notFound()
-  }
-
-  if (!person || !person.id) {
-    notFound()
-  }
+  const person = await tmdb.getPersonDetails(personId)
 
   const knownFor = person.combined_credits.cast
     .sort((a: any, b: any) => (b.vote_average || 0) - (a.vote_average || 0))
