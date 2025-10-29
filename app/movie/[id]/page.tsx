@@ -1,24 +1,74 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { TrailerBackground } from "@/components/trailer-background"
 import { CastList } from "@/components/cast-list"
+import { DownloadPopup } from "@/components/download-popup"
 import { tmdb } from "@/lib/tmdb"
 import Image from "next/image"
 import Link from "next/link"
-import { Play, Clock } from "lucide-react"
+import { Play, Clock, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { notFound } from "next/navigation"
 
-export default async function MoviePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const movieId = Number.parseInt(id)
+export default function MoviePage() {
+  const params = useParams()
+  const [movie, setMovie] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false)
 
-  if (Number.isNaN(movieId) || movieId <= 0) {
-    notFound()
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const idParam = Array.isArray(params.id) ? params.id[0] : params.id
+        const movieId = Number.parseInt(idParam as string)
+
+        if (Number.isNaN(movieId) || movieId <= 0) {
+          setError("Invalid movie ID")
+          setLoading(false)
+          return
+        }
+
+        const movieData = await tmdb.getMovieDetails(movieId)
+        setMovie(movieData)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching movie:", err)
+        setError("Failed to load movie")
+        setLoading(false)
+      }
+    }
+    fetchMovie()
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-white">Loading...</div>
+        </div>
+      </div>
+    )
   }
 
-  const [movie] = await Promise.all([
-    tmdb.getMovieDetails(movieId),
-  ])
+  if (error || !movie) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white mb-4">{error || "Movie not found"}</h1>
+            <Link href="/" className="text-[#fbc9ff] hover:underline">
+              Go back home
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const trailer = movie.videos.results.find((v) => v.type === "Trailer" && v.site === "YouTube")
 
@@ -85,12 +135,23 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
 
                   <p className="text-lg text-white/90 mb-6 max-w-3xl text-pretty">{movie.overview}</p>
 
-                  <Link href={`/watch/movie/${movie.id}`}>
-                    <Button size="lg" className="bg-[#fbc9ff] hover:bg-[#db97e2] text-black font-semibold">
-                      <Play className="w-5 h-5 mr-2 fill-black" />
-                      Play Now
+                  <div className="flex gap-3">
+                    <Link href={`/watch/movie/${movie.id}`}>
+                      <Button size="lg" className="bg-[#fbc9ff] hover:bg-[#db97e2] text-black font-semibold">
+                        <Play className="w-5 h-5 mr-2 fill-black" />
+                        Play Now
+                      </Button>
+                    </Link>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-[#fbc9ff] text-[#fbc9ff] hover:bg-[#fbc9ff] hover:text-black font-semibold"
+                      onClick={() => setIsDownloadOpen(true)}
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Download
                     </Button>
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -101,6 +162,14 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
           <CastList cast={movie.credits.cast} />
         </div>
       </main>
+
+      <DownloadPopup
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        mediaType="movie"
+        mediaId={movie.id}
+        title={movie.title}
+      />
     </div>
   )
 }

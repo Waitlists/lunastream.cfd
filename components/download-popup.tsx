@@ -1,38 +1,59 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { tmdb, type TVShowDetails } from "@/lib/tmdb"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { tmdb, type TVShowDetails, type Season, type Episode } from "@/lib/tmdb"
 
 interface DownloadPopupProps {
   isOpen: boolean
   onClose: () => void
-  mediaId: number
   mediaType: "movie" | "tv"
+  mediaId: number
   title: string
-  season?: number
-  episode?: number
 }
 
-export function DownloadPopup({ isOpen, onClose, mediaId, mediaType, title, season, episode }: DownloadPopupProps) {
-  const [selectedSeason, setSelectedSeason] = useState(season || 1)
-  const [selectedEpisode, setSelectedEpisode] = useState(episode || 1)
-  const [showDetails, setShowDetails] = useState<TVShowDetails | null>(null)
+export function DownloadPopup({ isOpen, onClose, mediaType, mediaId, title }: DownloadPopupProps) {
+  const [selectedSeason, setSelectedSeason] = useState(1)
+  const [selectedEpisode, setSelectedEpisode] = useState(1)
+  const [seasons, setSeasons] = useState<Season[]>([])
+  const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (mediaType === "tv" && isOpen) {
-      setLoading(true)
-      tmdb.getTVShowDetails(mediaId).then((details) => {
-        setShowDetails(details)
-        setLoading(false)
-      }).catch(() => {
-        setLoading(false)
-      })
+    if (isOpen && mediaType === "tv") {
+      fetchSeasons()
     }
-  }, [mediaId, mediaType, isOpen])
+  }, [isOpen, mediaType, mediaId])
+
+  useEffect(() => {
+    if (mediaType === "tv" && selectedSeason) {
+      fetchEpisodes(selectedSeason)
+    }
+  }, [selectedSeason])
+
+  const fetchSeasons = async () => {
+    try {
+      const showDetails = await tmdb.getTVShowDetails(mediaId)
+      setSeasons(showDetails.seasons.filter(season => season.season_number > 0))
+    } catch (error) {
+      console.error("Failed to fetch seasons:", error)
+    }
+  }
+
+  const fetchEpisodes = async (seasonNumber: number) => {
+    try {
+      setLoading(true)
+      const seasonDetails = await tmdb.getSeasonDetails(mediaId, seasonNumber)
+      setEpisodes(seasonDetails.episodes || [])
+    } catch (error) {
+      console.error("Failed to fetch episodes:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getEmbedUrl = () => {
     if (mediaType === "movie") {
@@ -44,50 +65,50 @@ export function DownloadPopup({ isOpen, onClose, mediaId, mediaType, title, seas
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-[80vh] bg-black/90 backdrop-blur-sm border-[#fbc9ff]/20">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-white">Download {title}</h2>
+      <DialogContent className="max-w-4xl w-full h-[80vh] bg-black/90 backdrop-blur-sm border-white/20">
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogTitle className="text-white">Download {title}</DialogTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
             className="text-white hover:bg-white/10"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </Button>
-        </div>
+        </DialogHeader>
 
-        {mediaType === "tv" && showDetails && (
+        {mediaType === "tv" && (
           <div className="flex gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <label className="text-white text-sm">Season:</label>
-              <select
-                value={selectedSeason}
-                onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                className="bg-black/50 border border-[#fbc9ff]/30 rounded px-3 py-1 text-white text-sm"
-              >
-                {showDetails.seasons
-                  .filter(season => season.season_number > 0)
-                  .map(season => (
-                    <option key={season.season_number} value={season.season_number}>
+            <div className="flex-1">
+              <label className="text-white text-sm mb-2 block">Season</label>
+              <Select value={selectedSeason.toString()} onValueChange={(value) => setSelectedSeason(Number(value))}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-white/20">
+                  {seasons.map((season) => (
+                    <SelectItem key={season.id} value={season.season_number.toString()} className="text-white">
                       Season {season.season_number}
-                    </option>
+                    </SelectItem>
                   ))}
-              </select>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-white text-sm">Episode:</label>
-              <select
-                value={selectedEpisode}
-                onChange={(e) => setSelectedEpisode(Number(e.target.value))}
-                className="bg-black/50 border border-[#fbc9ff]/30 rounded px-3 py-1 text-white text-sm"
-              >
-                {Array.from({ length: showDetails.seasons.find(s => s.season_number === selectedSeason)?.episode_count || 1 }, (_, i) => i + 1).map(ep => (
-                  <option key={ep} value={ep}>
-                    Episode {ep}
-                  </option>
-                ))}
-              </select>
+            <div className="flex-1">
+              <label className="text-white text-sm mb-2 block">Episode</label>
+              <Select value={selectedEpisode.toString()} onValueChange={(value) => setSelectedEpisode(Number(value))}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-white/20">
+                  {episodes.map((episode) => (
+                    <SelectItem key={episode.id} value={episode.episode_number.toString()} className="text-white">
+                      Episode {episode.episode_number}: {episode.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
@@ -95,9 +116,8 @@ export function DownloadPopup({ isOpen, onClose, mediaId, mediaType, title, seas
         <div className="flex-1">
           <iframe
             src={getEmbedUrl()}
-            className="w-full h-full rounded-lg border border-[#fbc9ff]/20"
+            className="w-full h-full rounded-lg"
             allowFullScreen
-            title={`Download ${title}`}
           />
         </div>
       </DialogContent>

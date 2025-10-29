@@ -8,10 +8,11 @@ import { CastList } from "@/components/cast-list"
 import { SeasonSelector } from "@/components/season-selector"
 import { EpisodeList } from "@/components/episode-list"
 import { EpisodeRatingChart } from "@/components/episode-rating-chart"
+import { DownloadPopup } from "@/components/download-popup"
 import { tmdb, type TVShowDetails, type Episode } from "@/lib/tmdb"
 import Image from "next/image"
 import Link from "next/link"
-import { Play, Calendar, Star, Tv } from "lucide-react"
+import { Play, Calendar, Star, Tv, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function TVShowPage() {
@@ -21,6 +22,7 @@ export default function TVShowPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -169,11 +171,15 @@ export default function TVShowPage() {
                         Play Now
                       </Button>
                     </Link>
-                    <Link href={`/continue`}>
-                      <Button size="lg" variant="outline" className="border-[#fbc9ff] text-[#fbc9ff] hover:bg-[#fbc9ff] hover:text-black font-semibold">
-                        Continue Watching
-                      </Button>
-                    </Link>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-[#fbc9ff] text-[#fbc9ff] hover:bg-[#fbc9ff] hover:text-black font-semibold"
+                      onClick={() => setIsDownloadOpen(true)}
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Download
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -200,6 +206,14 @@ export default function TVShowPage() {
           <CastList cast={show.credits.cast} />
         </div>
       </main>
+
+      <DownloadPopup
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        mediaType="tv"
+        mediaId={show.id}
+        title={show.name}
+      />
     </div>
   )
 }

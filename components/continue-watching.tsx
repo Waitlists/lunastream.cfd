@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { tmdb } from "@/lib/tmdb"
 import { createClient } from "@/lib/supabase/client"
-import { DownloadPopup } from "@/components/download-popup"
 
 interface ContinueWatchingProps {
   showTitle?: boolean
@@ -30,14 +29,6 @@ interface DBWatchProgress {
 export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
   const [watchList, setWatchList] = useState<WatchProgress[]>([])
   const [user, setUser] = useState<any>(null)
-  const [downloadPopup, setDownloadPopup] = useState<{
-    isOpen: boolean
-    mediaId: number
-    mediaType: "movie" | "tv"
-    title: string
-    season?: number
-    episode?: number
-  } | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -175,23 +166,23 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
     }
   }
 
-  const handleDownload = (item: WatchProgress) => {
-    setDownloadPopup({
-      isOpen: true,
-      mediaId: item.id,
-      mediaType: item.mediaType,
-      title: item.title,
-      season: item.season,
-      episode: item.episode,
-    })
+  const handleContinueWatching = (item: WatchProgress) => {
+    if (item.mediaType === "movie") {
+      router.push(`/watch/movie/${item.id}`)
+    } else if (item.season && item.episode) {
+      router.push(`/watch/tv/${item.id}/${item.season}/${item.episode}`)
+    } else {
+      // For TV shows without specific episode data, start from season 1 episode 1
+      router.push(`/watch/tv/${item.id}/1/1`)
+    }
   }
 
   if (watchList.length === 0) {
     return (
       <div className="mb-12">
-        {showTitle && <h2 className="text-2xl font-bold text-white mb-4">Download</h2>}
+        {showTitle && <h2 className="text-2xl font-bold text-white mb-4">Continue Watching</h2>}
         <div className="text-center py-12">
-          <p className="text-white/60 text-lg">Watch stuff to fill up your download list</p>
+          <p className="text-white/60 text-lg">Watch some movies or shows to fill up your watch list!</p>
         </div>
       </div>
     )
@@ -199,12 +190,12 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
 
   return (
     <div className="mb-12">
-      {showTitle && <h2 className="text-2xl font-bold text-white mb-4">Download</h2>}
+      {showTitle && <h2 className="text-2xl font-bold text-white mb-4">Continue Watching</h2>}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {watchList.map((item) => (
           <div key={`${item.mediaType}-${item.id}`} className="relative group">
             <button
-              onClick={() => handleDownload(item)}
+              onClick={() => handleContinueWatching(item)}
               className="relative w-full aspect-[2/3] rounded-lg overflow-hidden bg-white/5 hover:ring-2 hover:ring-[#fbc9ff] transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(251,201,255,0.4)]"
             >
               {item.posterPath ? (
@@ -245,18 +236,6 @@ export function ContinueWatching({ showTitle = true }: ContinueWatchingProps) {
           </div>
         ))}
       </div>
-
-      {downloadPopup && (
-        <DownloadPopup
-          isOpen={downloadPopup.isOpen}
-          onClose={() => setDownloadPopup(null)}
-          mediaId={downloadPopup.mediaId}
-          mediaType={downloadPopup.mediaType}
-          title={downloadPopup.title}
-          season={downloadPopup.season}
-          episode={downloadPopup.episode}
-        />
-      )}
     </div>
   )
 }
