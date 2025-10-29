@@ -151,4 +151,14 @@ export const tmdb = {
     )
     return res.json()
   },
+
+  getMovieGenres: async () => {
+    const res = await fetch(`${TMDB_BASE_URL}/genre/movie/list?api_key=${TMDB_API_KEY}`)
+    return res.json()
+  },
+
+  getTVGenres: async () => {
+    const res = await fetch(`${TMDB_BASE_URL}/genre/tv/list?api_key=${TMDB_API_KEY}`)
+    return res.json()
+  },
 }
