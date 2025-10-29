@@ -50,8 +50,8 @@ export default function SearchPage() {
         const filteredResults = data.results.filter(
           (r: any) => r.media_type !== "person" && (r.poster_path || r.profile_path),
         )
-        // Use TMDB's default relevance order
-        setResults(filteredResults)
+        // Sort by popularity for normal sorting
+        setResults(filteredResults.sort((a: any, b: any) => (b.popularity || 0) - (a.popularity || 0)))
       } catch (error) {
         console.error("[v0] Search error:", error)
       } finally {
