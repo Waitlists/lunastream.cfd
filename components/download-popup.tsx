@@ -65,14 +65,14 @@ export function DownloadPopup({ isOpen, onClose, mediaType, mediaId, title }: Do
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-[80vh] bg-black/90 backdrop-blur-sm border-white/20">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle className="text-white">Download {title}</DialogTitle>
+      <DialogContent className="max-w-6xl w-full h-[90vh] bg-black/95 backdrop-blur-sm border-white/20">
+        <DialogHeader className="flex flex-row items-center justify-between pb-4">
+          <DialogTitle className="text-white text-xl">Download {title}</DialogTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 w-8 h-8"
           >
             <X className="w-6 h-6" />
           </Button>

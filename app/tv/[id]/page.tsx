@@ -178,7 +178,7 @@ export default function TVShowPage() {
                       onClick={() => setIsDownloadOpen(true)}
                     >
                       <Download className="w-5 h-5 mr-2" />
-                      Download
+                      Download Episodes
                     </Button>
                   </div>
                 </div>
