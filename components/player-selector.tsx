@@ -109,7 +109,7 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
     if (mediaType === "movie") {
       switch (selectedPlayer) {
         case "vidzy":
-          return `https://vidzy.luna.tattoo/movie/${tmdbId}`
+          return `https://vidzy.luna.tattoo/embed/movie/${tmdbId}`
         case "videasy":
           return `https://player.videasy.net/movie/${tmdbId}?color=${color}&chromecast=false&nextEpisode=true&autoplayNextEpisode=true`
         case "vidify":
@@ -168,7 +168,7 @@ export function PlayerSelector({ tmdbId, mediaType, season, episode, title, onCl
     } else {
       switch (selectedPlayer) {
         case "vidzy":
-          return `https://vidzy.luna.tattoo/tv/${tmdbId}/${season}/${episode}`
+          return `https://vidzy.luna.tattoo/embed/tv/${tmdbId}/${season}/${episode}`
         case "videasy":
           return `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}?color=${color}&chromecast=false&nextEpisode=true&autoplayNextEpisode=true`
         case "vidify":
